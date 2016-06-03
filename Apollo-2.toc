@@ -1,0 +1,12 @@
+## Interface: 60200
+## Title: Apollo-2
+## Notes: God of Prophecy.
+## Author: Proximity_Microwave
+## Version: Alpha 1
+## SavedVariables:
+## SavedVariablesPerCharacter:
+
+Apollo-2_Core.lua
+Apollo-2_healer.lua
+Apollo-2_keybindings.lua
+Display.xml
