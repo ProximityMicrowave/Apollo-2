@@ -33,24 +33,16 @@ function frame:OnEvent(event, arg1)		-- EVENT REFERS TO THE TRIGGERING EVENT, AR
 
 	if event == "ADDON_LOADED" and arg1 == "Apollo" then	-- ADDON_LOADED EVENT FILTER, SCRIPT ONLY RUNS IF THE ADDON_LOADED EVENT OCCURES.
 		
-		_,_,Apollo_classIndex = UnitClass("player");		-- DETERMINES THE PLAYERS CLASS
-		if Apollo_classIndex == 1 then loaded,reason = LoadAddOn("Apollo_Warrior"); end;	-- IF THE PLAYER IS A WARRIOR; THE WARRIOR MODULE WILL BE LOADED.
-		if Apollo_classIndex == 2 then loaded,reason = LoadAddOn("Apollo_Paladin"); end;	-- IF THE PLAYER IS A PALADIN; THE PALADIN MODULE WILL BE LOADED.
-		if Apollo_classIndex == 4 then loaded,reason = LoadAddOn("Apollo_Rogue"); end;		-- IF THE PLAYER IS A ROGUE; THE ROGUE MODULE WILL BE LOADED.
-		if Apollo_classIndex == 8 then loaded,reason = LoadAddOn("Apollo_Mage"); end;		-- IF THE PLAYER IS A ROGUE; THE ROGUE MODULE WILL BE LOADED.
 		
 	end
 	
-	if event == "PLAYER_ENTERING_WORLD" 
+	if (event == "PLAYER_ENTERING_WORLD" 
 	or event == "GROUP_ROSTER_UPDATE" 
 	or event == "PLAYER_REGEN_ENABLED" 
-	or event == "ACTIVE_TALENT_GROUP_CHANGED"
-	then 
-	
-		if not InCombatLockdown() then
-			ApolloHealer_Keybinding()	--CREATES KEYBINDINGS FOR FOCUS TARGETS
-			Apollo.RebindKeys = true;
-		end
+	or event == "ACTIVE_TALENT_GROUP_CHANGED")
+	and (not InCombatLockdown()) then
+		ApolloHealer_Keybinding()	--CREATES KEYBINDINGS FOR FOCUS TARGETS
+		Apollo.RebindKeys = true;
 		
 	end
 	
@@ -60,68 +52,37 @@ end
 
 -- This function triggers every frame.
 function Apollo_OnUpdate(self, elapsed)
+	local r,g,b = 0,0,0			-- THESE VARIABLES CONTROL THE RGB COLOR CODE FOR THE CONTROLLER PIXEL. DEFAULT IS SET TO BLACK.
+	
+	-- THIS AREA OF THE FUNCTION WILL RUN PERIODICALLY BASED ON THE Apollo_UpdateSeconds variable
+	if (GetTime() >= Apollo_DelayTime) then Apollo_DelayTime = (GetTime() + Apollo_UpdateSeconds)
+	
+		if select(3,UnitClass("player")) == 5 then i = Apollo.Priest.Controller(); end;
 
-	Apollo_InCombat = InCombatLockdown()
-	
-	local Apollo_CurrentTime = GetTime()
-	
-	-- These Scripts run every 0.2 Seconds.
-	if (Apollo_CurrentTime >= Apollo_DelayTime) then Apollo_DelayTime = (Apollo_CurrentTime + Apollo_UpdateSeconds)
-		
-		-- STORES PARTY MEMBER DESIGNATIONS AND IDENTIFIES GROUP TANK.
---		for i = 0,4 do
---			if i == 0 then Apollo_Group[i] = "player" else Apollo_Group[i] = "party"..i; end;
---			if UnitGroupRolesAssigned(Apollo_Group[i]) == "TANK" then ApolloHealer_TANK = Apollo_Group[i]; end;
---		end
-	
-		Apollo_GCSpell = "Auto Attack"
-		if IsAddOnLoaded("Apollo_Warrior") then ApolloWarrior_Periodic(); end;
-		if IsAddOnLoaded("Apollo_Paladin") then ApolloPaladin_Periodic(); Apollo_GCSpell = 35395; end;
-		if IsAddOnLoaded("Apollo_Rogue") then ApolloRogue_Periodic(); end;
-		if IsAddOnLoaded("Apollo_Mage") then ApolloMage_Periodic(); end;
-		if Apollo_classIndex == 9 then Apollo.Warlock.Periodic(); Apollo_GCSpell = 686; end;
-		if Apollo_classIndex == 11 then Apollo.Druid.Periodic(); Apollo_GCSpell = 5176;end;
-		if Apollo_classIndex == 7 then Apollo.Shaman.Periodic(); Apollo_GCSpell = 403; end;
-		
-		
 	end
+	----
+	----
+	----
 
-	if IsAddOnLoaded("Apollo_Warrior") then ApolloWarrior_OnUpdate(); end;
-	if IsAddOnLoaded("Apollo_Paladin") then ApolloPaladin_OnUpdate(); end;
-	if IsAddOnLoaded("Apollo_Rogue") then ApolloRogue_OnUpdate(); end;
-	if IsAddOnLoaded("Apollo_Mage") then ApolloMage_OnUpdate(); end;
+	-- EVERYTHING AFTER THIS POINT IN THE FUNCTION WILL RUN EVERY FRAME.
 	
-	local r = 0
-	local g = 0
-	local b = 0
 	
+	-- THIS IF THEN STATEMENT TOGGLES THE COLOR REASIGNMENT ON OR OFF BASED ON CERTAIN CONDITIONS.
 	if 
-		ChatFrame1EditBox:IsVisible() == true or
-		UnitCastingInfo("player") ~= nil or
-		UnitChannelInfo("player") ~= nil or
-		GetSpellCooldown(Apollo_GCSpell) ~= 0
+		ChatFrame1EditBox:IsVisible() == true or	--ALLOWS THE PLAYER TO TYPE IN CHAT WITHOUT INTERFERENCE FROM THE CONTROL PIXEL.
+		UnitCastingInfo("player") ~= nil or			--DISABLES THE CONTROL PIXEL IF THE PLAYER IS CASTING A SPELL.
+		UnitChannelInfo("player") ~= nil			--DISABLES THE CONTROL PIXEL IF THE PLAYER IS CHANNELING A SPELL.
 	then
-		ColorDot:SetTexture(r,g,b,1);
+		ColorDot:SetTexture(r,g,b,1);				--IF THE ABOVE CONDITIONS ARE MET THE CONTROL PIXEL WILL BE ASSIGNED THE DEFAULT BLACK AND THE SCRIPT WILL STOP.
 		return; 
 	end;
 		
-	for i = 1,80 do
---		if Apollo_Ability.Cast[i] == nil then break; end;
-		
-		if Apollo_Ability.Cast[i] == true then
-			r = i/255
-			g = i/255
-			b = i/255
-		end	
-	end
+--	r,g,b = i/255,i/255,i/255		--THIS CONVERTS THE CONTROLLER RETURN INTO AN RGB CODE TO BE DISPLAYED AND READ BY THE EXTERNAL AHK SCRIPT.
 	
+	
+	--[[	--==THIS SECTION OF THE CODE IS GOING TO BE RECIEVING HEAVY ALTERATIONS AND I AM COMMENTING IT OUT FOR THE TIME BEING ==--
 	local LowestName, LowestHealth = ApolloHealer_LowestHealth()
 	local DecurseName, DebuffType = ApolloHealer_Decurse()
-	if Apollo_classIndex == 11 then
-		BuffName = ApolloHealer_BuffScan("Rejuvenation")
-	end
-
---	local IdealTarget = DecurseName or LowestName
 
 	if DecurseName then IdealTarget = DecurseName;
 	elseif (ApolloHealer_Below75 == 0 and BuffName) then IdealTarget = BuffName;
@@ -141,24 +102,14 @@ function Apollo_OnUpdate(self, elapsed)
 			end
 		end
 	end
+	]]--
 	
-	ColorDot:SetTexture(r,g,b,1);
+	ColorDot:SetTexture(r,g,b,1);	--CHANGES THE CONTROL PIXEL TO THE CORESPONDING COLOR TO BE READ BY THE EXTERNAL AHK SCRIPT.
+	return;
 	
 end
 
-function Apollo_AOEToggle()
-
-	if Apollo_AOEMode == false then
-		Apollo_AOEMode = true
-		print("AOE Mode is ON.")
-	else
-		Apollo_AOEMode = false
-		print("AOE Mode is OFF.")
-	end
-	
-
-end
-
+--PROVIDES AN EASY TO ACCESS FUNCTION TO DETERMINE A UNITS PERCENTAGE HEALTH
 function Apollo.UnitHealthPct(a)
 
 	local health = UnitHealth(a)
@@ -169,11 +120,10 @@ function Apollo.UnitHealthPct(a)
 	return healthPct
 end
 
+--PROVIDES AN EASY TO ACCESS FUNCTION FOR CREATING BUTTONS TO CAST SPECIFIC SPELLS
 function Apollo.CreateSkillButtons(a, b, c)
 
 	local btnName, spellName, spellTarget = a .. "btn", b, c
-	
---	print(btnName,string.gsub(spellName,"%p",""))
 
 	if not InCombatLockdown() then
 		if _G[btnName] == nil then _G[btnName] = CreateFrame("Button", string.gsub(spellName,"%p",""), UIParent, "SecureActionButtonTemplate"); end;
@@ -181,7 +131,10 @@ function Apollo.CreateSkillButtons(a, b, c)
 		_G[btnName]:SetAttribute("macrotext", "/use [@"..spellTarget.."] "..spellName)
 	end
 	
---	print("/use [@"..spellTarget.."] "..spellName)
+--	print(btnName,string.gsub(spellName,"%p",""))			--DEBUG CODE
+--	print("/use [@"..spellTarget.."] "..spellName)			--DEBUG CODE
+
+	return true --CONFIRMS THAT THE FUNCTION RAN SUCCESSFULLY
 	
 end
 
