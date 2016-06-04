@@ -53,11 +53,10 @@ end
 -- This function triggers every frame.
 function Apollo_OnUpdate(self, elapsed)
 	local r,g,b = 0,0,0			-- THESE VARIABLES CONTROL THE RGB COLOR CODE FOR THE CONTROLLER PIXEL. DEFAULT IS SET TO BLACK.
+	local skillNumber
 	
 	-- THIS AREA OF THE FUNCTION WILL RUN PERIODICALLY BASED ON THE Apollo_UpdateSeconds variable
 	if (GetTime() >= Apollo_DelayTime) then Apollo_DelayTime = (GetTime() + Apollo_UpdateSeconds)
-	
-		if select(3,UnitClass("player")) == 5 then i = Apollo.Priest.Controller(); end;
 
 	end
 	----
@@ -65,7 +64,6 @@ function Apollo_OnUpdate(self, elapsed)
 	----
 
 	-- EVERYTHING AFTER THIS POINT IN THE FUNCTION WILL RUN EVERY FRAME.
-	
 	
 	-- THIS IF THEN STATEMENT TOGGLES THE COLOR REASIGNMENT ON OR OFF BASED ON CERTAIN CONDITIONS.
 	if 
@@ -77,7 +75,10 @@ function Apollo_OnUpdate(self, elapsed)
 		return; 
 	end;
 		
---	r,g,b = i/255,i/255,i/255		--THIS CONVERTS THE CONTROLLER RETURN INTO AN RGB CODE TO BE DISPLAYED AND READ BY THE EXTERNAL AHK SCRIPT.
+	--THIS AREA DETERMINES WHICH CLASS THE PLAYER IS AND RUNS THE CORESPONDING CONTROLLER RETURNING WHICH SKILL SHOULD BE USED.
+	if select(3,UnitClass("player")) == 5 then i = Apollo.Priest.Controller(); end;
+	
+	r,g,b = i/255,i/255,i/255		--THIS CONVERTS THE CONTROLLER RETURN INTO AN RGB CODE TO BE DISPLAYED AND READ BY THE EXTERNAL AHK SCRIPT.
 	
 	
 	--[[	--==THIS SECTION OF THE CODE IS GOING TO BE RECIEVING HEAVY ALTERATIONS AND I AM COMMENTING IT OUT FOR THE TIME BEING ==--
@@ -104,6 +105,7 @@ function Apollo_OnUpdate(self, elapsed)
 	end
 	]]--
 	
+--	print(i)						--DEBUG CODE
 	ColorDot:SetTexture(r,g,b,1);	--CHANGES THE CONTROL PIXEL TO THE CORESPONDING COLOR TO BE READ BY THE EXTERNAL AHK SCRIPT.
 	return;
 	
@@ -120,22 +122,25 @@ function Apollo.UnitHealthPct(a)
 	return healthPct
 end
 
+
 --PROVIDES AN EASY TO ACCESS FUNCTION FOR CREATING BUTTONS TO CAST SPECIFIC SPELLS
-function Apollo.CreateSkillButtons(a, b, c)
+function Apollo.CreateSkillButtons(a, b, c, d)
 
 	local btnName, spellName, spellTarget = a .. "btn", b, c
 
-	if not InCombatLockdown() then
+	if not InCombatLockdown() and Apollo.RebindKeys then
 		if _G[btnName] == nil then _G[btnName] = CreateFrame("Button", string.gsub(spellName,"%p",""), UIParent, "SecureActionButtonTemplate"); end;
 		_G[btnName]:SetAttribute("type", "macro");
 		_G[btnName]:SetAttribute("macrotext", "/use [@"..spellTarget.."] "..spellName)
+		
+		SetBinding(Apollo_Ability.KeyBinding[d])
+		SetBindingClick(Apollo_Ability.KeyBinding[d], string.gsub(spellName,"%p",""))
 	end
 	
---	print(btnName,string.gsub(spellName,"%p",""))			--DEBUG CODE
---	print("/use [@"..spellTarget.."] "..spellName)			--DEBUG CODE
-
-	return true --CONFIRMS THAT THE FUNCTION RAN SUCCESSFULLY
+	Apollo.RebindKeys = false
+	return true						--CONFIRMS THAT THE FUNCTION RAN SUCCESSFULLY
 	
+
 end
 
 frame:SetScript("OnEvent", frame.OnEvent);
