@@ -2,8 +2,9 @@ Apollo.Priest = {}
 AP = Apollo.Priest
 
 function AP.Controller()
+	local highScore, controllerReturn = 0,0
 
-	skillFunctions = {
+	skillFunctions = {		--Skill functions that are run to determine priority
 		AP.Smite,
 		AP.Pain,
 	}
@@ -11,15 +12,24 @@ function AP.Controller()
 	skillList = {}
 	for i=1, table.getn(skillFunctions) do
 		skillList[i] = {skillFunctions[i]()}
-	end
-		
-	for i=1,table.getn(skillFunctions) do
-		local spellCast, spellDPS, keybinding = skillFunctions[i]()
-		if spellCast then return keybinding; end;
+		if skillList[i][1] == true then
+			if skillList[i][2] >  highScore then
+				highScore = skillList[i][2]
+				controllerReturn = skillList[i][3]
+			end
+		end		
 	end
 	
 	Apollo.RebindKeys = false
-	return 0
+	
+-- Debug Code --
+--	if controllerReturnDisplay ~= controllerReturn then
+--		controllerReturnDisplay = controllerReturn
+--		print(controllerReturnDisplay)
+--	end
+----------------
+
+	return controllerReturn
 	
 end
 
@@ -67,12 +77,14 @@ function AP.Pain()
 	local canAttack = UnitCanAttack("player",spellTarget)
 	local isDead = UnitIsDead(spellTarget)
 	local inRange = IsSpellInRange(spellName,spellTarget)
+	local debuff = UnitDebuff(spellTarget,spellName)
 	
 	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
 	
 	if (inRange == 1) 
 	and (canAttack) 
 	and (not isDead) 
+	and (not debuff)
 	then spellCast = true; end
 	
 	return spellCast, spellDPS, keybinding

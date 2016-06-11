@@ -101,7 +101,13 @@ function Apollo_OnUpdate(self, elapsed)
 	end
 	]]--
 	
---	print(i)						--DEBUG CODE
+--	Debug Code --
+--	if i ~= iDisplay then
+--		iDisplay = i
+--		print(iDisplay)
+--	end	
+-----------------
+
 	ColorDot:SetTexture(r,g,b,1);	--CHANGES THE CONTROL PIXEL TO THE CORESPONDING COLOR TO BE READ BY THE EXTERNAL AHK SCRIPT.
 	return;
 	
