@@ -27,7 +27,6 @@ frame:RegisterEvent("GROUP_ROSTER_UPDATE");		-- ALLOWS FILTERING FOR WHEN THE PL
 frame:RegisterEvent("PLAYER_REGEN_ENABLED");
 frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 
-
 -- THIS FUNCTION TRIGGERS IN RESPONSE TO ANY INGAME EVENT
 function frame:OnEvent(event, arg1)		-- EVENT REFERS TO THE TRIGGERING EVENT, ARG1 IS THE FIRST ASSOCIATED ARGUEMENT. (THIS CAN BE USED TO FILTER EVENTS)
 
@@ -42,11 +41,8 @@ function frame:OnEvent(event, arg1)		-- EVENT REFERS TO THE TRIGGERING EVENT, AR
 	or event == "ACTIVE_TALENT_GROUP_CHANGED")
 	and (not InCombatLockdown()) then
 		ApolloHealer_Keybinding()	--CREATES KEYBINDINGS FOR FOCUS TARGETS
-		Apollo.RebindKeys = true;
-		
+		Apollo.RebindKeys = true;	
 	end
-	
-	
 
 end
 
@@ -127,7 +123,7 @@ end
 function Apollo.CreateSkillButtons(a, b, c, d)
 
 	local btnName, spellName, spellTarget = a .. "btn", b, c
-
+	
 	if not InCombatLockdown() and Apollo.RebindKeys then
 		if _G[btnName] == nil then _G[btnName] = CreateFrame("Button", string.gsub(spellName,"%p",""), UIParent, "SecureActionButtonTemplate"); end;
 		_G[btnName]:SetAttribute("type", "macro");
@@ -137,10 +133,31 @@ function Apollo.CreateSkillButtons(a, b, c, d)
 		SetBindingClick(Apollo_Ability.KeyBinding[d], string.gsub(spellName,"%p",""))
 	end
 	
-	Apollo.RebindKeys = false
 	return true						--CONFIRMS THAT THE FUNCTION RAN SUCCESSFULLY
-	
 
+end
+
+function spairs(t, order)
+    -- collect the keys
+    local keys = {}
+    for k in pairs(t) do keys[#keys+1] = k end
+
+    -- if order function given, sort by it by passing the table and keys a, b,
+    -- otherwise just sort the keys 
+    if order then
+        table.sort(keys, function(a,b) return order(t, a, b) end)
+    else
+        table.sort(keys)
+    end
+
+    -- return the iterator function
+    local i = 0
+    return function()
+        i = i + 1
+        if keys[i] then
+            return keys[i], t[keys[i]]
+        end
+    end
 end
 
 frame:SetScript("OnEvent", frame.OnEvent);
