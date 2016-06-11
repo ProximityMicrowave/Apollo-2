@@ -7,6 +7,7 @@ function AP.Controller()
 	skillFunctions = {		--Skill functions that are run to determine priority
 		AP.Smite,
 		AP.Pain,
+		AP.Shield,
 	}
 	
 	skillList = {}
@@ -89,4 +90,38 @@ function AP.Pain()
 	
 	return spellCast, spellDPS, keybinding
 
+end
+
+function AP.Shield()
+	local __func__ = "Apollo.Priest.Shield"
+	
+	local spellCast = false
+	local spellName = "Power Word: Shield"
+	local spellTarget = "focus"
+	local castTime = 1.5
+	local keybinding = 3
+	
+	local spellpower = GetSpellBonusHealing()
+	local versatility = GetCombatRating(27)
+	local spellHPS = ((((spellpower * 4.59) + 2) * 1) * (1 + versatility)) * (1/castTime)
+
+	local isDead = UnitIsDeadOrGhost(spellTarget)
+	local inCombat = InCombatLockdown()
+	local inRange = IsSpellInRange(spellName,spellTarget)
+	local healthPct = Apollo.UnitHealthPct(spellTarget)
+	local globalcooldown = GetSpellCooldown("Smite")
+	local isUsable,noMana = IsUsableSpell(spellName)
+	
+	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
+	
+	if (not isDead) 
+	and (inCombat)
+	and (inRange == 1) 
+	and (globalcooldown == 0)
+--	and (healthPct < .75) 
+	and (isUsable)
+	and (not noMana)
+	then spellCast = true; end;
+	
+	return spellCast, spellHPS, keybinding
 end

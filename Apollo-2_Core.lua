@@ -75,31 +75,31 @@ function Apollo_OnUpdate(self, elapsed)
 	if select(3,UnitClass("player")) == 5 then i = Apollo.Priest.Controller(); end;
 	
 	r,g,b = i/255,i/255,i/255		--THIS CONVERTS THE CONTROLLER RETURN INTO AN RGB CODE TO BE DISPLAYED AND READ BY THE EXTERNAL AHK SCRIPT.
-	
-	
-	--[[	--==THIS SECTION OF THE CODE IS GOING TO BE RECIEVING HEAVY ALTERATIONS AND I AM COMMENTING IT OUT FOR THE TIME BEING ==--
-	local LowestName, LowestHealth = ApolloHealer_LowestHealth()
-	local DecurseName, DebuffType = ApolloHealer_Decurse()
 
+	--==THIS SECTION OF THE CODE IS GOING TO BE RECIEVING HEAVY ALTERATIONS AND I AM COMMENTING IT OUT FOR THE TIME BEING ==--
+	local LowestName, LowestHealth = ApolloHealer_LowestHealth()
+--	local DecurseName, DebuffType = ApolloHealer_Decurse()
+	
 	if DecurseName then IdealTarget = DecurseName;
-	elseif (ApolloHealer_Below75 == 0 and BuffName) then IdealTarget = BuffName;
 	else IdealTarget = LowestName; end;
 	
-	if UnitIsUnit("focus",IdealTarget) == false and (Apollo_classIndex ~= 9)then
+	if UnitIsUnit("focus",IdealTarget) == false then
+
 		for i = 1,Apollo_Group.GroupNum do
 			local Offset = 0
 			if Apollo_GroupType == "party" then Offset = -1; end;
 			PartyMember = Apollo_GroupType..i+Offset
 			if PartyMember == "party0" then PartyMember = "player"; end;
 			
-			if UnitIsUnit(PartyMember,IdealTarget) == true then
+			if UnitIsUnit(PartyMember,IdealTarget) then
 				r = (i)/255
 				g = 0
 				b = 0
 			end
 		end
 	end
-	]]--
+	
+--	print(IdealTarget)
 	
 --	Debug Code --
 --	if i ~= iDisplay then

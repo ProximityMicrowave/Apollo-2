@@ -61,10 +61,6 @@ function ApolloHealer_LowestHealth()
 	end
 	
 	if ApolloHealer_TANK == nil then ApolloHealer_TANK = "player"; end;
-	ApolloHealer_Below100 = 0
-	ApolloHealer_Below75 = 0
-	ApolloHealer_Below50 = 0
-	ApolloHealer_Below25 = 0
 	
 --	local LowestApollo_Group = Apollo_Group[1]
 	local LowestHealth = 2
@@ -74,9 +70,10 @@ function ApolloHealer_LowestHealth()
 	local PctHealth = {}
 
 	for i = 1,Apollo_Group.GroupNum do
-		if Apollo_classIndex == 2 then inRangeSpell = "Flash of Light"; end;
-		if Apollo_classIndex == 7 then inRangeSpell = "Healing Surge"; end;
-		if Apollo_classIndex == 11 then inRangeSpell = "Rejuvenation"; end;
+		if select(3,UnitClass("player")) == 2 then inRangeSpell = "Flash of Light"; end;
+		if select(3,UnitClass("player")) == 7 then inRangeSpell = "Healing Surge"; end;
+		if select(3,UnitClass("player")) == 11 then inRangeSpell = "Rejuvenation"; end;
+		if select(3,UnitClass("player")) == 5 then inRangeSpell = "Power Word: Shield"; end;
 		inRange = IsSpellInRange(inRangeSpell,Apollo_Group[i])
 		
 		for _,v in pairs(Apollo.Blacklist.Name) do
@@ -91,11 +88,6 @@ function ApolloHealer_LowestHealth()
 		local MaxHealth = UnitHealthMax(Apollo_Group[i])
 		
 		PctHealth[i] = ( CurHealth + IncomingHeal ) / MaxHealth
-		
-		if PctHealth[i] < 1.0 then ApolloHealer_Below100 = ApolloHealer_Below100 + 1; end;
-		if PctHealth[i] < .75 then ApolloHealer_Below75 = ApolloHealer_Below75 + 1; end;
-		if PctHealth[i] < .50 then ApolloHealer_Below50 = ApolloHealer_Below50 + 1; end;
-		if PctHealth[i] < .25 then ApolloHealer_Below25 = ApolloHealer_Below25 + 1; end;
 		
 		if PctHealth[i] < LowestHealth and UnitIsDeadOrGhost(Apollo_Group[i]) == false and inRange == 1 then 
 			LowestApollo_Group = Apollo_Group[i]
