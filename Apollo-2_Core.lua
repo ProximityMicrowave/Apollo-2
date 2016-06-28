@@ -73,7 +73,7 @@ function Apollo_OnUpdate(self, elapsed)
 		
 	--THIS AREA DETERMINES WHICH CLASS THE PLAYER IS AND RUNS THE CORESPONDING CONTROLLER RETURNING WHICH SKILL SHOULD BE USED.
 	if select(3,UnitClass("player")) == 5 then i, idealTarget = Apollo.Priest.Controller(); end;
-	
+		
 	r,g,b = i/255,i/255,i/255		--THIS CONVERTS THE CONTROLLER RETURN INTO AN RGB CODE TO BE DISPLAYED AND READ BY THE EXTERNAL AHK SCRIPT.
 
 	--==THIS SECTION OF THE CODE IS GOING TO BE RECIEVING HEAVY ALTERATIONS AND I AM COMMENTING IT OUT FOR THE TIME BEING ==--
@@ -94,15 +94,6 @@ function Apollo_OnUpdate(self, elapsed)
 		end
 	end
 	
-	print(idealTarget)
-	
---	Debug Code --
---	if i ~= iDisplay then
---		iDisplay = i
---		print(iDisplay)
---	end	
------------------
-
 	ColorDot:SetTexture(r,g,b,1);	--CHANGES THE CONTROL PIXEL TO THE CORESPONDING COLOR TO BE READ BY THE EXTERNAL AHK SCRIPT.
 	return;
 	

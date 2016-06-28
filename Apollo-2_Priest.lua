@@ -25,17 +25,18 @@ function AP.Controller()
 --		end		
 --	end
 	
+	--THIS FUNCTION DETERMINES THE PLAYERS IDEAL TARGET
 	for i=1, table.getn(skillFunctions) do
 		castSpell, idealTarget = Apollo.Healer.Targeting(skillFunctions[i])
 		if castSpell == true then break; end;
 	end
 	
 	--THIS SYSTEM WILL RUN DOWN THE LIST CASTING RETURNING THE FIRST SPELL TO RETURN 
-	skillList = {}
 	for i=1, table.getn(skillFunctions) do
-		skillList[i] = {skillFunctions[i]()}
-		if skillList[i][1] == true then
-			return skillList[i][3]
+		local spellCast, spellDPS, keybinding = skillFunctions[i]
+		if spellCast == true then
+			controllerReturn = keybinding
+			break;
 		end
 	end
 	
