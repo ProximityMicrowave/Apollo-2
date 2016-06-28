@@ -102,6 +102,16 @@ function ApolloHealer_LowestHealth()
 	
 end
 
+function AH.Targetting(skillFunction)
+
+	for i = 1,Apollo_Group.GroupNum do
+		if skillFunction(Apollo_Group[i]) == true then return true, Apollo_Group[i]
+	end
+	
+	return false, "player"
+	
+end
+
 function ApolloHealer_Decurse()
 
 	local CleanseSpell = "Auto Attack"
@@ -109,8 +119,9 @@ function ApolloHealer_Decurse()
 	local name = false
 	local level = UnitLevel("player")
 	
-	if Apollo_classIndex == 11 then CleanseSpell = "Nature's Cure"; end;
-	if Apollo_classIndex == 2 then CleanseSpell = "Cleanse"; end;
+	if select(3,UnitClass("player")) == 11 then CleanseSpell = "Nature's Cure"; end;
+	if select(3,UnitClass("player")) == 2 then CleanseSpell = "Cleanse"; end;
+	if select(3,UnitClass("player")) == 5 then CleanseSpell = "Purify"; end;
 	
 	if GetSpellCooldown(CleanseSpell) ~= 0 then return name; end;
 
@@ -139,6 +150,11 @@ function ApolloHealer_Decurse()
 				if debuffType == "Magic" then name = Apollo_Group[i]; end;
 				if debuffType == "Disease" then name = Apollo_Group[i]; end;
 				if debuffType == "Poison" then name = Apollo_Group[i]; end;
+			end
+			
+			if CleanseSpell == "Purify" then
+				if debuffType == "Magic" then name = Apollo_Group[i]; end;
+				if debuffType == "Disease" then name = Apollo_Group[i]; end;
 			end
 			
 			if debuffName == "Unstable Affliction" then

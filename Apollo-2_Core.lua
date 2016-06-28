@@ -78,7 +78,7 @@ function Apollo_OnUpdate(self, elapsed)
 
 	--==THIS SECTION OF THE CODE IS GOING TO BE RECIEVING HEAVY ALTERATIONS AND I AM COMMENTING IT OUT FOR THE TIME BEING ==--
 	local LowestName, LowestHealth = ApolloHealer_LowestHealth()
---	local DecurseName, DebuffType = ApolloHealer_Decurse()
+	local DecurseName, DebuffType = ApolloHealer_Decurse()
 	
 	if DecurseName then IdealTarget = DecurseName;
 	else IdealTarget = LowestName; end;
