@@ -44,64 +44,6 @@ function AH.GetTank()
 	
 end
 
-function ApolloHealer_LowestHealth()
---	for i = 1, table.getn(Apollo.Blacklist.Name) do
---		if Apollo.Blacklist.Time[i] <= time() then
---			table.remove(Apollo.Blacklist.Name, i)
---			table.remove(Apollo.Blacklist.Time, i)
---		end
---	end
-
-	for i,v in ipairs(Apollo.Blacklist.Time) do
-		if v <= time() then
-			print(i,v)
-			table.remove(Apollo.Blacklist.Name, i)
-			table.remove(Apollo.Blacklist.Time, i)
-		end
-	end
-	
-	if ApolloHealer_TANK == nil then ApolloHealer_TANK = "player"; end;
-	
---	local LowestApollo_Group = Apollo_Group[1]
-	local LowestHealth = 2
-	local inRange
-	local inRangeSpell = ""
-
-	local PctHealth = {}
-
-	for i = 1,Apollo_Group.GroupNum do
-		if select(3,UnitClass("player")) == 2 then inRangeSpell = "Flash of Light"; end;
-		if select(3,UnitClass("player")) == 7 then inRangeSpell = "Healing Surge"; end;
-		if select(3,UnitClass("player")) == 11 then inRangeSpell = "Rejuvenation"; end;
-		if select(3,UnitClass("player")) == 5 then inRangeSpell = "Power Word: Shield"; end;
-		inRange = IsSpellInRange(inRangeSpell,Apollo_Group[i])
-		
-		for _,v in pairs(Apollo.Blacklist.Name) do
-			if v == UnitName(Apollo_Group[i]) then
-				inRange = 0
---				print("Found blacklist target")
-			end
-		end
-		
-		local IncomingHeal = UnitGetIncomingHeals(Apollo_Group[i]) or 0;
-		local CurHealth = UnitHealth(Apollo_Group[i])
-		local MaxHealth = UnitHealthMax(Apollo_Group[i])
-		
-		PctHealth[i] = ( CurHealth + IncomingHeal ) / MaxHealth
-		
-		if PctHealth[i] < LowestHealth and UnitIsDeadOrGhost(Apollo_Group[i]) == false and inRange == 1 then 
-			LowestApollo_Group = Apollo_Group[i]
-			LowestHealth = PctHealth[i]
---			print(LowestApollo_Group)
---			print(PctHealth[i])
-		end;
-	end
-	
-	if LowestApollo_Group == nil then LowestApollo_Group = "Apollo_Group[1]"; end;
-	return LowestApollo_Group, LowestHealth
-	
-end
-
 function AH.Targeting(skillFunction)
 
 	local castSpell, target = false, "player"
