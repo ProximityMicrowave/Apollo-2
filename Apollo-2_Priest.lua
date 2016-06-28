@@ -5,8 +5,9 @@ function AP.Controller()
 	local highScore, controllerReturn = 0,0
 
 	skillFunctions = {		--Skill functions that are run to determine priority
-		AP.Pain,
 		AP.Shield,
+		AP.FlashHeal,
+		AP.Pain,
 		AP.Smite,
 	}
 	
@@ -130,6 +131,7 @@ function AP.Shield()
 	and (inCombat)
 	and (inRange == 1) 
 	and (globalcooldown == 0)
+	and (UnitHealth(spellTarget) <= UnitHealthMax("player") * .3) 
 	and (isUsable)
 	and (not noMana)
 	then spellCast = true; end;
