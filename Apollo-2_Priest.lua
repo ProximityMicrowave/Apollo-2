@@ -243,23 +243,3 @@ function AP.Purify(spellTarget)
 	return spellCast, spellHeal, keybinding
 	
 end
-
---======================
---======================
-function AP.DebuffScan(a)
-	
-	local spellTarget = a
-	local debuffFound = false
-	local name, dispelType = true, ""
-	i = 1
-	while name do
-		name, _, _, _, dispelType, _, _, _, _, _, _, _, _, _, _, _ = UnitDebuff(spellTarget,i)
-		if dispelType == "Magic" then debuffFound = true; end;
-		if dispelType == "Curse" then debuffFound = true; end;
-		if dispelType == "Poison" then debuffFound = true; end;
-		i = i + 1;
-	end
-	
-	return debuffFound
-	
-end
