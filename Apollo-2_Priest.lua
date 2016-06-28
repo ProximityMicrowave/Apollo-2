@@ -33,7 +33,7 @@ function AP.Controller()
 	
 	--THIS SYSTEM WILL RUN DOWN THE LIST CASTING RETURNING THE FIRST SPELL TO RETURN 
 	for i=1, table.getn(skillFunctions) do
-		local spellCast, spellDPS, keybinding = skillFunctions[i]
+		local spellCast, spellDPS, keybinding = skillFunctions[i]()
 		if spellCast == true then
 			controllerReturn = keybinding
 			break;
