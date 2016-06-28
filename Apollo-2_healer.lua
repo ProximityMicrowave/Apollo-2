@@ -102,13 +102,19 @@ function ApolloHealer_LowestHealth()
 	
 end
 
-function AH.Targetting(skillFunction)
+function AH.Targeting(skillFunction)
+
+	local castSpell, target = false, "player"
 
 	for i = 1,Apollo_Group.GroupNum do
-		if skillFunction(Apollo_Group[i]) == true then return true, Apollo_Group[i]
+		if skillFunction(Apollo_Group[i]) == true then 
+			castSpell = true
+			target = Apollo_Group[i]
+			break;
+		end
 	end
 	
-	return false, "player"
+	return castSpell, target
 	
 end
 

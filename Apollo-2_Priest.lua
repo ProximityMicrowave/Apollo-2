@@ -26,7 +26,7 @@ function AP.Controller()
 --	end
 	
 	for i=1, table.getn(skillFunctions) do
-		Apollo.Healer.Targetting(skillFunctions[i])
+		Apollo.Healer.Targeting(skillFunctions[i])
 	end
 	
 	--THIS SYSTEM WILL RUN DOWN THE LIST CASTING RETURNING THE FIRST SPELL TO RETURN 
