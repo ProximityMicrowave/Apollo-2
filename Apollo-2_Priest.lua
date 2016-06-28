@@ -26,7 +26,8 @@ function AP.Controller()
 --	end
 	
 	for i=1, table.getn(skillFunctions) do
-		Apollo.Healer.Targeting(skillFunctions[i])
+		castSpell, idealTarget = Apollo.Healer.Targeting(skillFunctions[i])
+		if castSpell == true then break; end;
 	end
 	
 	--THIS SYSTEM WILL RUN DOWN THE LIST CASTING RETURNING THE FIRST SPELL TO RETURN 
@@ -47,7 +48,7 @@ function AP.Controller()
 --	end
 ----------------
 
-	return controllerReturn
+	return controllerReturn, idealTarget
 	
 end
 
