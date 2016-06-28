@@ -44,69 +44,20 @@ function AH.GetTank()
 	
 end
 
-function ApolloHealer_LowestHealth()
---	for i = 1, table.getn(Apollo.Blacklist.Name) do
---		if Apollo.Blacklist.Time[i] <= time() then
---			table.remove(Apollo.Blacklist.Name, i)
---			table.remove(Apollo.Blacklist.Time, i)
---		end
---	end
+function AH.Targeting(skillFunction)
 
-	for i,v in ipairs(Apollo.Blacklist.Time) do
-		if v <= time() then
-			print(i,v)
-			table.remove(Apollo.Blacklist.Name, i)
-			table.remove(Apollo.Blacklist.Time, i)
-		end
-	end
-	
-	if ApolloHealer_TANK == nil then ApolloHealer_TANK = "player"; end;
-	ApolloHealer_Below100 = 0
-	ApolloHealer_Below75 = 0
-	ApolloHealer_Below50 = 0
-	ApolloHealer_Below25 = 0
-	
---	local LowestApollo_Group = Apollo_Group[1]
-	local LowestHealth = 2
-	local inRange
-	local inRangeSpell = ""
-
-	local PctHealth = {}
+	local castSpell, target = false, "player"
 
 	for i = 1,Apollo_Group.GroupNum do
-		if Apollo_classIndex == 2 then inRangeSpell = "Flash of Light"; end;
-		if Apollo_classIndex == 7 then inRangeSpell = "Healing Surge"; end;
-		if Apollo_classIndex == 11 then inRangeSpell = "Rejuvenation"; end;
-		inRange = IsSpellInRange(inRangeSpell,Apollo_Group[i])
-		
-		for _,v in pairs(Apollo.Blacklist.Name) do
-			if v == UnitName(Apollo_Group[i]) then
-				inRange = 0
---				print("Found blacklist target")
-			end
+		if skillFunction(Apollo_Group[i]) == true then 
+			castSpell = true
+			target = Apollo_Group[i]
+			break;
 		end
-		
-		local IncomingHeal = UnitGetIncomingHeals(Apollo_Group[i]) or 0;
-		local CurHealth = UnitHealth(Apollo_Group[i])
-		local MaxHealth = UnitHealthMax(Apollo_Group[i])
-		
-		PctHealth[i] = ( CurHealth + IncomingHeal ) / MaxHealth
-		
-		if PctHealth[i] < 1.0 then ApolloHealer_Below100 = ApolloHealer_Below100 + 1; end;
-		if PctHealth[i] < .75 then ApolloHealer_Below75 = ApolloHealer_Below75 + 1; end;
-		if PctHealth[i] < .50 then ApolloHealer_Below50 = ApolloHealer_Below50 + 1; end;
-		if PctHealth[i] < .25 then ApolloHealer_Below25 = ApolloHealer_Below25 + 1; end;
-		
-		if PctHealth[i] < LowestHealth and UnitIsDeadOrGhost(Apollo_Group[i]) == false and inRange == 1 then 
-			LowestApollo_Group = Apollo_Group[i]
-			LowestHealth = PctHealth[i]
---			print(LowestApollo_Group)
---			print(PctHealth[i])
-		end;
 	end
 	
-	if LowestApollo_Group == nil then LowestApollo_Group = "Apollo_Group[1]"; end;
-	return LowestApollo_Group, LowestHealth
+--	print(castSpell, target)
+	return castSpell, target
 	
 end
 
@@ -117,8 +68,9 @@ function ApolloHealer_Decurse()
 	local name = false
 	local level = UnitLevel("player")
 	
-	if Apollo_classIndex == 11 then CleanseSpell = "Nature's Cure"; end;
-	if Apollo_classIndex == 2 then CleanseSpell = "Cleanse"; end;
+	if select(3,UnitClass("player")) == 11 then CleanseSpell = "Nature's Cure"; end;
+	if select(3,UnitClass("player")) == 2 then CleanseSpell = "Cleanse"; end;
+	if select(3,UnitClass("player")) == 5 then CleanseSpell = "Purify"; end;
 	
 	if GetSpellCooldown(CleanseSpell) ~= 0 then return name; end;
 
@@ -147,6 +99,11 @@ function ApolloHealer_Decurse()
 				if debuffType == "Magic" then name = Apollo_Group[i]; end;
 				if debuffType == "Disease" then name = Apollo_Group[i]; end;
 				if debuffType == "Poison" then name = Apollo_Group[i]; end;
+			end
+			
+			if CleanseSpell == "Purify" then
+				if debuffType == "Magic" then name = Apollo_Group[i]; end;
+				if debuffType == "Disease" then name = Apollo_Group[i]; end;
 			end
 			
 			if debuffName == "Unstable Affliction" then
