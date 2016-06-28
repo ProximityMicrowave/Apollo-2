@@ -42,7 +42,7 @@ Apollo_Ability.KeyBinding = {
 	"SHIFT-NUMPAD0",
 	}
 	
-Apollo_Group.Keybinding = {
+Apollo.Group.Keybinding = {
 	"F1",
 	"F2",
 	"F3",

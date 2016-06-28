@@ -13,7 +13,8 @@ Apollo_Ability = {}								-- ARRAY CONTAINING ALL RELEVANT ABILITY DATA
 Apollo_Ability.SpellName = {}
 Apollo_Ability.Cast = {}						-- ARRAY CONTAINING WHICH ABILITIES SHOULD BE CAST
 Apollo_Ability.Type = {}
-Apollo_Group = {}
+Apollo.Group = {}
+Apollo.Group.Names = {}
 Apollo_DelayTime = 0							-- DO NOT CHANGE! (STORES THE TIME SINCE LAST PERIODIC UPDATE)
 Apollo_UpdateSeconds = 0.1; 					-- DETERMINES HOW OFTEN PERIODIC EVENTS WILL RUN
 
@@ -80,10 +81,10 @@ function Apollo_OnUpdate(self, elapsed)
 	
 	if UnitIsUnit("focus",idealTarget) == false then
 
-		for i = 1,Apollo_Group.GroupNum do
+		for i = 1,Apollo.Group.GroupNum do
 			local Offset = 0
-			if Apollo_GroupType == "party" then Offset = -1; end;
-			PartyMember = Apollo_GroupType..i+Offset
+			if Apollo.Group.Type == "party" then Offset = -1; end;
+			PartyMember = Apollo.Group.Type..i+Offset
 			if PartyMember == "party0" then PartyMember = "player"; end;
 			
 			if UnitIsUnit(PartyMember,idealTarget) then
