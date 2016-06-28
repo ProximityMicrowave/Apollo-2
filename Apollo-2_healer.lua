@@ -114,6 +114,7 @@ function AH.Targeting(skillFunction)
 		end
 	end
 	
+--	print(castSpell, target)
 	return castSpell, target
 	
 end
