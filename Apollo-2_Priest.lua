@@ -5,20 +5,30 @@ function AP.Controller()
 	local highScore, controllerReturn = 0,0
 
 	skillFunctions = {		--Skill functions that are run to determine priority
-		AP.Smite,
 		AP.Pain,
 		AP.Shield,
+		AP.Smite,
 	}
 	
+	--THIS SYSTEM WILL USE A NUMBERED PRIORITY SYSTEM FOR DECIDING WHICH SKILL TO CAST
+--	skillList = {}
+--	for i=1, table.getn(skillFunctions) do
+--		skillList[i] = {skillFunctions[i]()}
+--		if skillList[i][1] == true then
+--			if skillList[i][2] >  highScore then
+--				highScore = skillList[i][2]
+--				controllerReturn = skillList[i][3]
+--			end
+--		end		
+--	end
+
+	--THIS SYSTEM WILL RUN DOWN THE LIST CASTING RETURNING THE FIRST SPELL TO RETURN 
 	skillList = {}
 	for i=1, table.getn(skillFunctions) do
 		skillList[i] = {skillFunctions[i]()}
 		if skillList[i][1] == true then
-			if skillList[i][2] >  highScore then
-				highScore = skillList[i][2]
-				controllerReturn = skillList[i][3]
-			end
-		end		
+			return skillList[i][3]
+		end
 	end
 	
 	Apollo.RebindKeys = false
@@ -103,7 +113,9 @@ function AP.Shield()
 	
 	local spellpower = GetSpellBonusHealing()
 	local versatility = GetCombatRating(27)
-	local spellHPS = ((((spellpower * 4.59) + 2) * 1) * (1 + versatility)) * (1/castTime)
+	local missingHealth = UnitHealthMax(spellTarget) - UnitHealth(spellTarget)
+	local spellHeal = ((((spellpower * 4.59) + 2) * 1) * (1 + versatility))
+	if spellHeal >= missingHealth then spellHeal = missingHealth; end;
 
 	local isDead = UnitIsDeadOrGhost(spellTarget)
 	local inCombat = InCombatLockdown()
@@ -118,10 +130,44 @@ function AP.Shield()
 	and (inCombat)
 	and (inRange == 1) 
 	and (globalcooldown == 0)
---	and (healthPct < .75) 
 	and (isUsable)
 	and (not noMana)
 	then spellCast = true; end;
 	
-	return spellCast, spellHPS, keybinding
+	return spellCast, spellHeal, keybinding
+end
+
+function AP.FlashHeal()
+	local __func__ = "Apollo.Priest.FlashHeal"
+	
+	local spellCast = false
+	local spellName = "Flash Heal"
+	local spellTarget = "focus"
+	local castTime = 1.5
+	local keybinding = 4
+	
+	local spellpower = GetSpellBonusHealing()
+	local versatility = GetCombatRating(27)
+	local missingHealth = UnitHealthMax(spellTarget) - UnitHealth(spellTarget)
+	local spellHeal = (spellpower * 3.32657)
+	if spellHeal >= missingHealth then spellHeal = missingHealth; end;
+
+	local isDead = UnitIsDeadOrGhost(spellTarget)
+	local inCombat = InCombatLockdown()
+	local inRange = IsSpellInRange(spellName,spellTarget)
+	local healthPct = Apollo.UnitHealthPct(spellTarget)
+	local globalcooldown = GetSpellCooldown("Smite")
+	local isUsable,noMana = IsUsableSpell(spellName)
+	
+	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
+	
+	if (not isDead) 
+	and (inRange == 1) 
+	and (globalcooldown == 0)
+	and (healthPct <= .9)
+	and (isUsable)
+	and (not noMana)
+	then spellCast = true; end;
+	
+	return spellCast, spellHeal, keybinding
 end
