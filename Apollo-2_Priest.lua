@@ -8,8 +8,8 @@ function AP.Controller()
 		AP.Fortitude,
 --		AP.Purify,
 		AP.Shield,
+--		AP.Renew,
 		AP.FlashHeal,
-		AP.Renew,
 		AP.Pain,
 		AP.Smite,
 	}
@@ -127,19 +127,21 @@ function AP.Shield(spellTarget)
 	local inCombat = InCombatLockdown()
 	local inRange = IsSpellInRange(spellName,spellTarget)
 	local healthPct = Apollo.UnitHealthPct(spellTarget)
-	local globalcooldown = GetSpellCooldown("Smite")
+	local cooldown = GetSpellCooldown(spellName)
 	local isUsable,noMana = IsUsableSpell(spellName)
+	local threat = UnitThreatSituation(spellTarget) or 0
+	local debuff = UnitDebuff(spellTarget,"Weakened Soul")
 	
 	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
 	
 	if (not isDead) 
 	and (inCombat)
 	and (inRange == 1) 
-	and (globalcooldown == 0)
-	and (UnitHealthMax(spellTarget) < .9)
-	and (UnitThreatSituation(spellTarget) >= 2)
+	and (cooldown == 0)
+	and (threat >= 2)
 	and (isUsable)
 	and (not noMana)
+	and (not debuff)
 	then spellCast = true; end;
 	
 	return spellCast, spellHeal, keybinding
