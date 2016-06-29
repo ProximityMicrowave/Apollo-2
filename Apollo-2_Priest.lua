@@ -8,8 +8,8 @@ function AP.Controller()
 		AP.Fortitude,
 --		AP.Purify,
 		AP.Shield,
---		AP.Renew,
 		AP.FlashHeal,
+		AP.Renew,
 		AP.Pain,
 		AP.Smite,
 	}
@@ -253,7 +253,9 @@ function AP.Renew(spellTarget)
 	local castTime = 1.5
 	local keybinding = 7
 	
-	local spellHeal = 1
+	local missingHealth = UnitHealthMax(spellTarget) - UnitHealth(spellTarget)
+	local spellpower = GetSpellBonusHealing()
+	local spellHeal = (spellpower * (.22 + 1.76))
 	
 	local isDead = UnitIsDeadOrGhost(spellTarget)
 	local inCombat = InCombatLockdown()
@@ -269,7 +271,7 @@ function AP.Renew(spellTarget)
 	and (inRange == 1) 
 	and (globalcooldown == 0)
 	and (isUsable)
-	and (healthPct <= .9)
+	and (missingHealth >= spellHeal)
 	and (not noMana)
 	and (not buff)
 	then spellCast = true; end;
