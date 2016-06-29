@@ -9,6 +9,7 @@ function AP.Controller()
 --		AP.Purify,
 		AP.Shield,
 		AP.FlashHeal,
+		AP.Renew,
 		AP.Pain,
 		AP.Smite,
 	}
@@ -119,13 +120,9 @@ function AP.Shield(spellTarget)
 	if spellTarget == nil then spellTarget = "focus"; end;
 	local castTime = 1.5
 	local keybinding = 3
-	
-	local spellpower = GetSpellBonusHealing()
-	local versatility = GetCombatRating(27)
-	local missingHealth = UnitHealthMax(spellTarget) - UnitHealth(spellTarget)
-	local spellHeal = ((((spellpower * 4.59) + 2) * 1) * (1 + versatility))
-	if spellHeal >= missingHealth then spellHeal = missingHealth; end;
 
+	local spellHeal = 1
+	
 	local isDead = UnitIsDeadOrGhost(spellTarget)
 	local inCombat = InCombatLockdown()
 	local inRange = IsSpellInRange(spellName,spellTarget)
@@ -139,7 +136,8 @@ function AP.Shield(spellTarget)
 	and (inCombat)
 	and (inRange == 1) 
 	and (globalcooldown == 0)
-	and (UnitHealth(spellTarget) <= UnitHealthMax("player") * .3) 
+	and (UnitHealthMax(spellTarget) < .9)
+	and (UnitThreatSituation(spellTarget) >= 2)
 	and (isUsable)
 	and (not noMana)
 	then spellCast = true; end;
@@ -174,7 +172,7 @@ function AP.FlashHeal(spellTarget)
 	if (not isDead) 
 	and (inRange == 1) 
 	and (globalcooldown == 0)
-	and (healthPct <= .9)
+	and ((healthPct <= .6) or (missingHealth > spellHeal))
 	and (isUsable)
 	and (not noMana)
 	then spellCast = true; end;
@@ -242,4 +240,37 @@ function AP.Purify(spellTarget)
 	
 	return spellCast, spellHeal, keybinding
 	
+end
+
+function AP.Renew(spellTarget)
+	local __func__ = "Apollo.Priest.Renew"
+	
+	local spellCast = false
+	local spellName = "Renew"
+	if spellTarget == nil then spellTarget = "focus"; end;
+	local castTime = 1.5
+	local keybinding = 7
+	
+	local spellHeal = 1
+	
+	local isDead = UnitIsDeadOrGhost(spellTarget)
+	local inCombat = InCombatLockdown()
+	local inRange = IsSpellInRange(spellName,spellTarget)
+	local healthPct = Apollo.UnitHealthPct(spellTarget)
+	local globalcooldown = GetSpellCooldown("Smite")
+	local isUsable,noMana = IsUsableSpell(spellName)
+	local buff = UnitBuff(spellTarget,spellName)
+	
+	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
+	
+	if (not isDead) 
+	and (inRange == 1) 
+	and (globalcooldown == 0)
+	and (isUsable)
+	and (healthPct <= .9)
+	and (not noMana)
+	and (not buff)
+	then spellCast = true; end;
+	
+	return spellCast, spellHeal, keybinding
 end
