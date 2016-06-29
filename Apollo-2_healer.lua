@@ -35,11 +35,12 @@ end
 function AH.Targeting(skillFunction)
 
 	local castSpell, target = false, "player"
+	local priority = Apollo.Healer.TargetSorting()
 
-	for i = 1,Apollo.Group.GroupNum do
-		if skillFunction(Apollo.Group.Names[i]) == true then 
+	for i = 1,table.getn(priority) do
+		if skillFunction(priority[i][1]) == true then 
 			castSpell = true
-			target = Apollo.Group.Names[i]
+			target = priority[i][1]
 			break;
 		end
 	end
@@ -49,8 +50,22 @@ function AH.Targeting(skillFunction)
 	
 end
 
-function AH.TargetSorting()
+function Apollo.Healer.TargetSorting()
+	local priority = {}
+	local z = {}
 	
-	print(Apollo.Group.Names[1])
+	for i, v in ipairs(Apollo.Group.Names) do
+		z[Apollo.Group.Names[i]] = Apollo.UnitHealthPct(Apollo.Group.Names[i])
+	end;
+	
+	i = 1
+	for k,v in spairs(z, function(t,a,b) return t[b] > t[a] end) do
+--		print(k,v)
+		priority[i] = {}
+		priority[i][1] = k
+		i = i + 1
+	end;
+	
+	return priority
 	
 end
