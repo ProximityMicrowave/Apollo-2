@@ -42,15 +42,14 @@ end
 
 function AP.Smite(spellTarget, rebind)
 	if spellTarget == nil then spellTarget = "target"; end;
-
---	print("AP.Smite is working!")
 	local __func__ = "Apollo.Priest.Smite"
-
-	local spellCast = false
 	local spellName = "Smite"
-	local castTime = 1.5
 	local keybinding = 1
 	
+	--IF REBIND IS SET TO TRUE  THE KEYBINDING WILL BE SET AND THE FUNCTION ENDS ELSE IT WILL CONTINUE AS NORMAL
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding); return; end;
+
+	local castTime = 1.5
 	local spellpower = GetSpellBonusDamage(2)
 	local spellDPS = spellpower * 0.92448 * (1/castTime)
 
@@ -58,29 +57,25 @@ function AP.Smite(spellTarget, rebind)
 	local isDead = UnitIsDead(spellTarget)
 	local inRange = IsSpellInRange(spellName,spellTarget)
 	
-	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding); return; end;
-	
-	if (inRange == 1) 
-	and (canAttack) 
-	and (not isDead) 
-	then spellCast = true; end
+	if (inRange == 1)
+	and (canAttack)
+	and (not isDead)
+	then spellCast = true else spellCast = false; end
 	
 	return spellCast, spellDPS, keybinding
 
 end
 
 function AP.Pain(spellTarget, rebind)
-	if spellTarget == nil or spellTarget == false then spellTarget = "target"; end;
-	
+	if spellTarget == nil then spellTarget = "target"; end;
 	local __func__ = "Apollo.Priest.Pain"
-
-	local spellCast = false
 	local spellName = "Shadow Word: Pain"
-	local castTime = 1.5
 	local keybinding = 2
 	
+	--IF REBIND IS SET TO TRUE  THE KEYBINDING WILL BE SET AND THE FUNCTION ENDS ELSE IT WILL CONTINUE AS NORMAL
 	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding); return; end;
-
+	
+	local castTime = 1.5
 	local spellpower = GetSpellBonusDamage(6)
 	local spellDPS = (spellpower * (0.475 + 2.85) * (1/castTime))
 
@@ -93,7 +88,7 @@ function AP.Pain(spellTarget, rebind)
 	and (canAttack) 
 	and (not isDead) 
 	and (not debuff)
-	then spellCast = true; end
+	then spellCast = true else spellCast = false; end
 	
 	return spellCast, spellDPS, keybinding
 
