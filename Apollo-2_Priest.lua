@@ -30,39 +30,11 @@ function AP.Controller()
 		Apollo.RebindKeys = false
 	end
 	
-	--THIS SYSTEM WILL USE A NUMBERED PRIORITY SYSTEM FOR DECIDING WHICH SKILL TO CAST
---	skillList = {}
---	for i=1, table.getn(skillFunctions) do
---		skillList[i] = {skillFunctions[i]()}
---		if skillList[i][1] == true then
---			if skillList[i][2] >  highScore then
---				highScore = skillList[i][2]
---				controllerReturn = skillList[i][3]
---			end
---		end		
---	end
-	
-	--THIS FUNCTION DETERMINES THE PLAYERS IDEAL TARGET
+	--THIS FUNCTION DETERMINES THE PLAYERS IDEAL TARGET AND SKILL
 	for i=1, table.getn(skillFunctions) do
 		castSpell, idealTarget, controllerReturn = Apollo.Healer.Targeting(skillFunctions[i])
 		if castSpell == true then break; end;
 	end
-	
-	--THIS SYSTEM WILL RUN DOWN THE LIST CASTING RETURNING THE FIRST SPELL TO RETURN 
---	for i=1, table.getn(skillFunctions) do
---		local spellCast, spellDPS, keybinding = skillFunctions[i]()
---		if spellCast == true then
---			controllerReturn = keybinding
---			break;
---		end
---	end
-	
--- Debug Code --
---	if controllerReturnDisplay ~= controllerReturn then
---		controllerReturnDisplay = controllerReturn
---		print(controllerReturnDisplay)
---	end
-----------------
 
 	return controllerReturn, idealTarget
 	
