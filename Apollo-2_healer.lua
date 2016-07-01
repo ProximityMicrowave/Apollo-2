@@ -34,19 +34,26 @@ end
 
 function AH.Targeting(skillFunction)
 
-	local castSpell, target = false, "player"
+--	local castSpell, target = false, "player"
+	local castSpell = false
+	if Apollo.Healer.Target == nil then Apollo.Healer.Target = "player"; end;
 	local priority = Apollo.Healer.TargetSorting()
 
 	for i = 1,table.getn(priority) do
-		if skillFunction(priority[i][1]) == true then 
-			castSpell = true
-			target = priority[i][1]
+		castSpell, spellEffect, keybinding = skillFunction(priority[i][1])
+		if castSpell == true then 
+--			castSpell = true
+			Apollo.Healer.Target = priority[i][1]
 			break;
+		else
+			castSpell = false
+			keybinding = 0
+			Apollo.Healer.Target = "player"
 		end
 	end
 	
 --	print(castSpell, target)
-	return castSpell, target
+	return castSpell, Apollo.Healer.Target, keybinding
 	
 end
 

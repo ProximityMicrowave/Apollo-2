@@ -1,7 +1,15 @@
 Apollo.Priest = {}
 AP = Apollo.Priest
+Apollo.Priest.SpellHealing = {}
+APSH = Apollo.Priest.SpellHealing
 
 function AP.Controller()
+	
+	local spellpower = GetSpellBonusHealing()
+	Apollo.Priest.SpellHealing["FlashHeal"] = (spellpower * 3.33)
+	Apollo.Priest.SpellHealing["Heal"] = (spellpower * 3.33)
+	Apollo.Priest.SpellHealing["Renew"] = (spellpower * (.22 + 1.76))
+	
 	local highScore, controllerReturn = 0,0
 
 	skillFunctions = {		--Skill functions that are run to determine priority
@@ -14,6 +22,13 @@ function AP.Controller()
 		AP.Pain,
 		AP.Smite,
 	}
+	
+	if Apollo.RebindKeys == true then
+		for i=1, table.getn(skillFunctions) do
+			skillFunctions[i](nil, true)
+		end
+		Apollo.RebindKeys = false
+	end
 	
 	--THIS SYSTEM WILL USE A NUMBERED PRIORITY SYSTEM FOR DECIDING WHICH SKILL TO CAST
 --	skillList = {}
@@ -29,20 +44,18 @@ function AP.Controller()
 	
 	--THIS FUNCTION DETERMINES THE PLAYERS IDEAL TARGET
 	for i=1, table.getn(skillFunctions) do
-		castSpell, idealTarget = Apollo.Healer.Targeting(skillFunctions[i])
+		castSpell, idealTarget, controllerReturn = Apollo.Healer.Targeting(skillFunctions[i])
 		if castSpell == true then break; end;
 	end
 	
 	--THIS SYSTEM WILL RUN DOWN THE LIST CASTING RETURNING THE FIRST SPELL TO RETURN 
-	for i=1, table.getn(skillFunctions) do
-		local spellCast, spellDPS, keybinding = skillFunctions[i]()
-		if spellCast == true then
-			controllerReturn = keybinding
-			break;
-		end
-	end
-	
-	Apollo.RebindKeys = false
+--	for i=1, table.getn(skillFunctions) do
+--		local spellCast, spellDPS, keybinding = skillFunctions[i]()
+--		if spellCast == true then
+--			controllerReturn = keybinding
+--			break;
+--		end
+--	end
 	
 -- Debug Code --
 --	if controllerReturnDisplay ~= controllerReturn then
@@ -55,13 +68,14 @@ function AP.Controller()
 	
 end
 
-function AP.Smite(spellTarget)
+function AP.Smite(spellTarget, rebind)
+	if spellTarget == nil then spellTarget = "target"; end;
+
 --	print("AP.Smite is working!")
 	local __func__ = "Apollo.Priest.Smite"
 
 	local spellCast = false
 	local spellName = "Smite"
-	if spellTarget == nil then spellTarget = "target"; end;
 	local castTime = 1.5
 	local keybinding = 1
 	
@@ -72,7 +86,7 @@ function AP.Smite(spellTarget)
 	local isDead = UnitIsDead(spellTarget)
 	local inRange = IsSpellInRange(spellName,spellTarget)
 	
-	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding); return; end;
 	
 	if (inRange == 1) 
 	and (canAttack) 
@@ -83,16 +97,18 @@ function AP.Smite(spellTarget)
 
 end
 
-function AP.Pain(spellTarget)
---	print("AP.Pain is working!")
+function AP.Pain(spellTarget, rebind)
+	if spellTarget == nil or spellTarget == false then spellTarget = "target"; end;
+	
 	local __func__ = "Apollo.Priest.Pain"
 
 	local spellCast = false
 	local spellName = "Shadow Word: Pain"
-	if spellTarget == nil then spellTarget = "target"; end;
 	local castTime = 1.5
 	local keybinding = 2
 	
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding); return; end;
+
 	local spellpower = GetSpellBonusDamage(6)
 	local spellDPS = (spellpower * (0.475 + 2.85) * (1/castTime))
 
@@ -100,8 +116,6 @@ function AP.Pain(spellTarget)
 	local isDead = UnitIsDead(spellTarget)
 	local inRange = IsSpellInRange(spellName,spellTarget)
 	local debuff = UnitDebuff(spellTarget,spellName)
-	
-	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
 	
 	if (inRange == 1) 
 	and (canAttack) 
@@ -113,14 +127,17 @@ function AP.Pain(spellTarget)
 
 end
 
-function AP.Shield(spellTarget)
+function AP.Shield(spellTarget, rebind)
+	if spellTarget == nil or spellTarget == false then spellTarget = "focus"; end;
+	
 	local __func__ = "Apollo.Priest.Shield"
 	
 	local spellCast = false
 	local spellName = "Power Word: Shield"
-	if spellTarget == nil then spellTarget = "focus"; end;
 	local castTime = 1.5
 	local keybinding = 3
+	
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
 
 	local spellpower = GetSpellBonusHealing()
 	local missingHealth = UnitHealthMax(spellTarget) - UnitHealth(spellTarget)
@@ -134,8 +151,6 @@ function AP.Shield(spellTarget)
 	local isUsable,noMana = IsUsableSpell(spellName)
 	local threat = UnitThreatSituation(spellTarget) or 0
 	local debuff = UnitDebuff(spellTarget,"Weakened Soul")
-	
-	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
 	
 	if (not isDead) 
 	and (inCombat)
@@ -151,18 +166,17 @@ function AP.Shield(spellTarget)
 	return spellCast, spellHeal, keybinding
 end
 
-function AP.FlashHeal(spellTarget)
+function AP.FlashHeal(spellTarget, rebind)
+	if spellTarget == nil or spellTarget == false then spellTarget = "focus"; end;
 	local __func__ = "Apollo.Priest.FlashHeal"
 	
 	local spellCast = false
 	local spellName = "Flash Heal"
-	if spellTarget == nil then spellTarget = "focus"; end;
 	local castTime = 1.5
 	local keybinding = 4
 	
-	local spellpower = GetSpellBonusHealing()
-	local missingHealth = UnitHealthMax(spellTarget) - UnitHealth(spellTarget)
-	local spellHeal = (spellpower * 3.32657)
+	local missingHealth = Apollo.MissingHealth(spellTarget)
+	local spellHeal = APSH["FlashHeal"]
 
 	local isDead = UnitIsDeadOrGhost(spellTarget)
 	local inCombat = InCombatLockdown()
@@ -171,12 +185,12 @@ function AP.FlashHeal(spellTarget)
 	local globalcooldown = GetSpellCooldown("Smite")
 	local isUsable,noMana = IsUsableSpell(spellName)
 	
-	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
 	
 	if (not isDead) 
 	and (inRange == 1) 
 	and (globalcooldown == 0)
-	and ((healthPct <= .6) or (missingHealth > spellHeal * 4))
+	and ((healthPct <= .6) or (missingHealth > (spellHeal * 4) + APSH["Renew"]))
 	and (isUsable)
 	and (not noMana)
 	then spellCast = true; end;
@@ -184,16 +198,17 @@ function AP.FlashHeal(spellTarget)
 	return spellCast, spellHeal, keybinding
 end
 
-function AP.Fortitude(spellTarget)
+function AP.Fortitude(spellTarget, rebind)
+	if spellTarget == nil or spellTarget == false then spellTarget = "focus"; end;
 	local __func__ = "Apollo.Priest.Fortitude"
 	
 	local spellCast = false
 	local spellName = "Power Word: Fortitude"
-	if spellTarget == nil then spellTarget = "focus"; end;
 	local castTime = 1.5
 	local keybinding = 5
-	
 	local spellHeal = 1
+	
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
 	
 	local isDead = UnitIsDeadOrGhost(spellTarget)
 	local inCombat = InCombatLockdown()
@@ -202,8 +217,6 @@ function AP.Fortitude(spellTarget)
 	local globalcooldown = GetSpellCooldown("Smite")
 	local isUsable,noMana = IsUsableSpell(spellName)
 	local buff = UnitBuff(spellTarget,spellName)
-	
-	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
 	
 	if (not isDead) 
 	and (inRange == 1) 
@@ -216,12 +229,12 @@ function AP.Fortitude(spellTarget)
 	return spellCast, spellHeal, keybinding
 end
 
-function AP.Purify(spellTarget)
+function AP.Purify(spellTarget, rebind)
+	if spellTarget == nil or spellTarget == false then spellTarget = "focus"; end;
 	local __func__ = "Apollo.Priest.Purify"
 	
 	local spellCast = false
 	local spellName = "Purify"
-	if spellTarget == nil then spellTarget = "focus"; end;
 	local castTime = 1.5
 	local keybinding = 6
 	
@@ -233,7 +246,7 @@ function AP.Purify(spellTarget)
 	local startTime = GetSpellCooldown(spellName)
 	local _,noMana = IsUsableSpell("Purify")
 	
-	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding); end;
 	
 	if (not isDead)
 	and (not noMana)
@@ -246,18 +259,16 @@ function AP.Purify(spellTarget)
 	
 end
 
-function AP.Renew(spellTarget)
+function AP.Renew(spellTarget, rebind)
+	if spellTarget == nil or spellTarget == false then spellTarget = "focus"; end;
 	local __func__ = "Apollo.Priest.Renew"
 	
 	local spellCast = false
 	local spellName = "Renew"
-	if spellTarget == nil then spellTarget = "focus"; end;
 	local castTime = 1.5
 	local keybinding = 7
 	
-	local missingHealth = UnitHealthMax(spellTarget) - UnitHealth(spellTarget)
-	local spellpower = GetSpellBonusHealing()
-	local spellHeal = (spellpower * (.22 + 1.76))
+	local missingHealth = Apollo.MissingHealth(spellTarget)
 	
 	local isDead = UnitIsDeadOrGhost(spellTarget)
 	local inCombat = InCombatLockdown()
@@ -267,13 +278,13 @@ function AP.Renew(spellTarget)
 	local isUsable,noMana = IsUsableSpell(spellName)
 	local buff = UnitBuff(spellTarget,spellName)
 	
-	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
 	
 	if (not isDead) 
 	and (inRange == 1) 
 	and (globalcooldown == 0)
 	and (isUsable)
-	and (missingHealth >= spellHeal)
+	and (missingHealth >= APSH["Renew"])
 	and (not noMana)
 	and (not buff)
 	then spellCast = true; end;
@@ -281,20 +292,17 @@ function AP.Renew(spellTarget)
 	return spellCast, spellHeal, keybinding
 end
 
-function AP.Heal(spellTarget)
+function AP.Heal(spellTarget, rebind)
+	if spellTarget == nil or spellTarget == false then spellTarget = "focus"; end;
 	local __func__ = "Apollo.Priest.Heal"
 	
 	local spellCast = false
 	local spellName = "Heal"
-	if spellTarget == nil then spellTarget = "focus"; end;
 	local castTime = 2.43
 	local keybinding = 8
 	
-	local spellpower = GetSpellBonusHealing()
-	local versatility = GetCombatRating(27)
-	local missingHealth = UnitHealthMax(spellTarget) - UnitHealth(spellTarget)
-	local spellHeal = (spellpower * 3.3264)
-	if spellHeal >= missingHealth then spellHeal = missingHealth; end;
+	local missingHealth = Apollo.MissingHealth(spellTarget)
+	local spellHeal = APSH["Heal"]
 
 	local isDead = UnitIsDeadOrGhost(spellTarget)
 	local inCombat = InCombatLockdown()
@@ -303,12 +311,12 @@ function AP.Heal(spellTarget)
 	local globalcooldown = GetSpellCooldown("Smite")
 	local isUsable,noMana = IsUsableSpell(spellName)
 	
-	Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding)
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
 	
 	if (not isDead) 
 	and (inRange == 1) 
 	and (globalcooldown == 0)
-	and ((healthPct <= .8) or (missingHealth > spellHeal))
+	and ((healthPct <= .8) or (missingHealth > spellHeal + APSH["Renew"]))
 	and (isUsable)
 	and (not noMana)
 	then spellCast = true; end;

@@ -64,9 +64,9 @@ function Apollo_OnUpdate(self, elapsed)
 	
 	-- THIS IF THEN STATEMENT TOGGLES THE COLOR REASIGNMENT ON OR OFF BASED ON CERTAIN CONDITIONS.
 	if 
-		ChatFrame1EditBox:IsVisible() == true or	--ALLOWS THE PLAYER TO TYPE IN CHAT WITHOUT INTERFERENCE FROM THE CONTROL PIXEL.
-		UnitCastingInfo("player") ~= nil or			--DISABLES THE CONTROL PIXEL IF THE PLAYER IS CASTING A SPELL.
-		UnitChannelInfo("player") ~= nil			--DISABLES THE CONTROL PIXEL IF THE PLAYER IS CHANNELING A SPELL.
+		ChatFrame1EditBox:IsVisible() == true --or	--ALLOWS THE PLAYER TO TYPE IN CHAT WITHOUT INTERFERENCE FROM THE CONTROL PIXEL.
+--		UnitCastingInfo("player") ~= nil or			--DISABLES THE CONTROL PIXEL IF THE PLAYER IS CASTING A SPELL.
+--		UnitChannelInfo("player") ~= nil			--DISABLES THE CONTROL PIXEL IF THE PLAYER IS CHANNELING A SPELL.
 	then
 		ColorDot:SetTexture(r,g,b,1);				--IF THE ABOVE CONDITIONS ARE MET THE CONTROL PIXEL WILL BE ASSIGNED THE DEFAULT BLACK AND THE SCRIPT WILL STOP.
 		return; 
@@ -109,6 +109,18 @@ function Apollo.UnitHealthPct(a)
 	local healthPct = (health + incomingHealth) / healthMax
 	
 	return healthPct
+end
+
+function Apollo.MissingHealth(a)
+
+	local health = UnitHealth(a)
+	local healthMax = UnitHealthMax(a)
+	local incomingHealth = UnitGetIncomingHeals(a) or 0
+	local missingHealth = healthMax - (health + incomingHealth)
+	if missingHealth < 0 then missingHealth = 0; end;
+	
+	return missingHealth;
+	
 end
 
 
