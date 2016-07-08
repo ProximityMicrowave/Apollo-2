@@ -17,8 +17,8 @@ function AP.Controller()
 --		AP.Purify,
 		AP.Shield,
 		AP.FlashHeal,
-		AP.Heal,
 		AP.Renew,
+		AP.Heal,
 		AP.Pain,
 		AP.Smite,
 	}
@@ -131,6 +131,7 @@ function AP.Shield(spellTarget, rebind)
 	and (not debuff)
 	then spellCast = true; end;
 	
+	if spellTarget == "target" then spellCast = false; end;
 	return spellCast, spellHeal, keybinding
 end
 
@@ -163,6 +164,7 @@ function AP.FlashHeal(spellTarget, rebind)
 	and (not noMana)
 	then spellCast = true; end;
 	
+	if spellTarget == "target" then spellCast = false; end;
 	return spellCast, spellHeal, keybinding
 end
 
@@ -194,6 +196,7 @@ function AP.Fortitude(spellTarget, rebind)
 	and (not buff)
 	then spellCast = true; end;
 	
+	if spellTarget == "target" then spellCast = false; end;
 	return spellCast, spellHeal, keybinding
 end
 
@@ -223,6 +226,7 @@ function AP.Purify(spellTarget, rebind)
 	and (debuffFound)
 	then spellCast = true; end;
 	
+	if spellTarget == "target" then spellCast = false; end;
 	return spellCast, spellHeal, keybinding
 	
 end
@@ -249,6 +253,7 @@ function AP.Renew(spellTarget, rebind)
 	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
 	
 	if (not isDead) 
+	and (inCombat)
 	and (inRange == 1) 
 	and (globalcooldown == 0)
 	and (isUsable)
@@ -257,6 +262,7 @@ function AP.Renew(spellTarget, rebind)
 	and (not buff)
 	then spellCast = true; end;
 	
+	if spellTarget == "target" then spellCast = false; end;
 	return spellCast, spellHeal, keybinding
 end
 
@@ -289,5 +295,6 @@ function AP.Heal(spellTarget, rebind)
 	and (not noMana)
 	then spellCast = true; end;
 	
+	if spellTarget == "target" then spellCast = false; end;
 	return spellCast, spellHeal, keybinding
 end
