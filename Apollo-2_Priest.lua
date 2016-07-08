@@ -36,6 +36,7 @@ function AP.Controller()
 		if castSpell == true then break; end;
 	end
 
+--	print(controllerReturn, idealTarget)
 	return controllerReturn, idealTarget
 	
 end
