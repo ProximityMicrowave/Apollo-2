@@ -48,7 +48,7 @@ function AH.Targeting(skillFunction)
 		else
 			castSpell = false
 			keybinding = 0
-			Apollo.Healer.Target = "player"
+--			Apollo.Healer.Target = "player"
 		end
 	end
 	

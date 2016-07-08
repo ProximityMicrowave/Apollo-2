@@ -78,7 +78,7 @@ function Apollo_OnUpdate(self, elapsed)
 	r,g,b = i/255,i/255,i/255		--THIS CONVERTS THE CONTROLLER RETURN INTO AN RGB CODE TO BE DISPLAYED AND READ BY THE EXTERNAL AHK SCRIPT.
 
 	--==THIS SECTION OF THE CODE IS GOING TO BE RECIEVING HEAVY ALTERATIONS AND I AM COMMENTING IT OUT FOR THE TIME BEING ==--
-	
+	idealTarget = idealTarget or "focus"
 	if UnitIsUnit("focus",idealTarget) == false then
 
 		for i = 1,Apollo.Group.GroupNum do
