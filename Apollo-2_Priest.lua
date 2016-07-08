@@ -1,16 +1,17 @@
 Apollo.Priest = {}
-AP = Apollo.Priest
+local AP = Apollo.Priest
+local AH = Apollo.Healer
 Apollo.Priest.SpellHealing = {}
 APSH = Apollo.Priest.SpellHealing
 
 function AP.Controller()
 	
 	local spellpower = GetSpellBonusHealing()
-	Apollo.Priest.SpellHealing["FlashHeal"] = (spellpower * 3.33)
-	Apollo.Priest.SpellHealing["Heal"] = (spellpower * 3.33)
-	Apollo.Priest.SpellHealing["Renew"] = (spellpower * (.22 + 1.76))
+	AP.SpellHealing["FlashHeal"] = (spellpower * 3.33)
+	AP.SpellHealing["Heal"] = (spellpower * 3.33)
+	AP.SpellHealing["Renew"] = (spellpower * (.22 + 1.76))
 	
-	local highScore, controllerReturn = 0,0
+	local controllerReturn, idealTarget = 0, nil
 
 	skillFunctions = {		--Skill functions that are run to determine priority
 		AP.Fortitude,
@@ -31,11 +32,17 @@ function AP.Controller()
 	end
 	
 	--THIS FUNCTION DETERMINES THE PLAYERS IDEAL TARGET AND SKILL
-	for i=1, table.getn(skillFunctions) do
-		castSpell, idealTarget, controllerReturn = Apollo.Healer.Targeting(skillFunctions[i])
-		if castSpell == true then break; end;
-	end
 
+	for i in ipairs(skillFunctions) do
+		local a, b, c = AH.Targeting(skillFunctions[i])
+		print(i, a, b, c)
+		if a == true then 
+			idealTarget = b
+			controllerReturn = c
+			break
+		end
+	end
+	
 --	print(controllerReturn, idealTarget)
 	return controllerReturn, idealTarget
 	
