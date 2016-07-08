@@ -39,12 +39,11 @@ function AH.Targeting(skillFunction)
 --	print(priority[1][2])
 --	print(skillFunction(priority[1][2]))
 
-	for i = 1,table.getn(priority[1]) do
-		castSpell, spellEffect, keybinding = skillFunction(priority[1][i])
---		print()
+	for i = 1,table.getn(priority) do
+		castSpell, spellEffect, keybinding = skillFunction(priority[i])
 		if castSpell == true then 
 			castSpell = true
-			Apollo.Healer.Target = priority[1][i]
+			Apollo.Healer.Target = priority[i]
 			break;
 		else
 			castSpell = false
@@ -66,16 +65,15 @@ function Apollo.Healer.TargetSorting()
 		z[Apollo.Group.Names[i]] = Apollo.UnitHealthPct(Apollo.Group.Names[i])
 	end;
 	
-	i = 1
+	i=1
 	for k,v in spairs(z, function(t,a,b) return t[b] > t[a] end) do
---		print(k,v)
-		priority[i] = {}
-		priority[i][1] = k
-		i = i + 1
+		priority[i] = k
+		i=i+1
 	end;
 	
-	table.insert(priority[i-1], "target")
---	for i,v in ipairs(priority[i-1]) do
+	table.insert(priority, "target")
+	
+--	for i,v in ipairs(priority) do
 --		print(i,v)
 --	end
 	
