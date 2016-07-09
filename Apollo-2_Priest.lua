@@ -15,6 +15,7 @@ function AP.Controller()
 
 	skillFunctions = {		--Skill functions that are run to determine priority
 		AP.Resurrection,
+		AP.Fade,
 		AP.Fortitude,
 --		AP.Purify,
 		AP.Shield,
@@ -335,4 +336,37 @@ function AP.Resurrection(spellTarget, rebind)
 	if spellTarget == target then spellCast = false; end;
 	return spellCast, spellHeal, keybinding
 
+end
+
+function AP.Fade(spellTarget, rebind)
+	if spellTarget == nil or spellTarget == false then spellTarget = "player"; end;
+	
+	local __func__ = "Apollo.Priest.Fade"
+	
+	local spellCast = false
+	local spellName = "Fade"
+	local castTime = 1.5
+	local keybinding = 10
+	local spellHeal = 0
+	
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
+
+	local isDead = UnitIsDeadOrGhost(spellTarget)
+	local inCombat = InCombatLockdown()
+	local inRange = IsSpellInRange(spellName,spellTarget)
+	local healthPct = Apollo.UnitHealthPct(spellTarget)
+	local cooldown = GetSpellCooldown(spellName)
+	local isUsable,noMana = IsUsableSpell(spellName)
+	local threat = UnitThreatSituation(spellTarget) or 0
+	
+	if (not isDead)
+	and (inCombat)
+	and (cooldown == 0)
+	and (threat >= 2)
+	and (isUsable)
+	and (not noMana)
+	then spellCast = true; end;
+	
+	if spellTarget ~= "player" then spellCast = false; end;
+	return spellCast, spellHeal, keybinding
 end
