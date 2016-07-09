@@ -50,7 +50,7 @@ end
 -- This function triggers every frame.
 function Apollo_OnUpdate(self, elapsed)
 	local r,g,b = 0,0,0			-- THESE VARIABLES CONTROL THE RGB COLOR CODE FOR THE CONTROLLER PIXEL. DEFAULT IS SET TO BLACK.
-	local skillNumber
+	local idealTarget
 	
 	-- THIS AREA OF THE FUNCTION WILL RUN PERIODICALLY BASED ON THE Apollo_UpdateSeconds variable
 	if (GetTime() >= Apollo_DelayTime) then Apollo_DelayTime = (GetTime() + Apollo_UpdateSeconds)
@@ -74,7 +74,8 @@ function Apollo_OnUpdate(self, elapsed)
 		
 	--THIS AREA DETERMINES WHICH CLASS THE PLAYER IS AND RUNS THE CORESPONDING CONTROLLER RETURNING WHICH SKILL SHOULD BE USED.
 	if select(3,UnitClass("player")) == 5 then i, idealTarget = Apollo.Priest.Controller(); end;
-		
+	
+--	print(idealTarget)
 	r,g,b = i/255,i/255,i/255		--THIS CONVERTS THE CONTROLLER RETURN INTO AN RGB CODE TO BE DISPLAYED AND READ BY THE EXTERNAL AHK SCRIPT.
 
 	--==THIS SECTION OF THE CODE IS GOING TO BE RECIEVING HEAVY ALTERATIONS AND I AM COMMENTING IT OUT FOR THE TIME BEING ==--
