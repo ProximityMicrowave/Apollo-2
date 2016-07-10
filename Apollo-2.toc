@@ -13,3 +13,4 @@ Apollo-2_DataTracking.lua
 Display.xml
 
 Apollo-2_Priest.lua
+Apollo-2_Paladin.lua

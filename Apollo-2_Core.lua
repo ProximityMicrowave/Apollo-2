@@ -61,6 +61,7 @@ function Apollo_OnUpdate(self, elapsed)
 	----
 
 	-- EVERYTHING AFTER THIS POINT IN THE FUNCTION WILL RUN EVERY FRAME.
+	Apollo.totalMissingHealth = Apollo.TotalMissingHealth()
 	
 	-- THIS IF THEN STATEMENT TOGGLES THE COLOR REASIGNMENT ON OR OFF BASED ON CERTAIN CONDITIONS.
 	if 
@@ -73,7 +74,10 @@ function Apollo_OnUpdate(self, elapsed)
 	end;
 		
 	--THIS AREA DETERMINES WHICH CLASS THE PLAYER IS AND RUNS THE CORESPONDING CONTROLLER RETURNING WHICH SKILL SHOULD BE USED.
-	if select(3,UnitClass("player")) == 5 then i, idealTarget = Apollo.Priest.Controller(); end;
+	i = 0
+	local playerClass = select(3,UnitClass("player"))
+	if playerClass == 5 then i, idealTarget = Apollo.Priest.Controller(); end;
+	if playerClass == 2 then i, idealTarget = Apollo.Paladin.Controller(); end;
 	
 --	print(idealTarget)
 	r,g,b = i/255,i/255,i/255		--THIS CONVERTS THE CONTROLLER RETURN INTO AN RGB CODE TO BE DISPLAYED AND READ BY THE EXTERNAL AHK SCRIPT.
@@ -124,6 +128,41 @@ function Apollo.MissingHealth(a)
 	
 end
 
+function Apollo.TotalMissingHealth()
+	
+	local TotalMissingHealth = 0
+	for i,v in ipairs(Apollo.Group.Names) do
+		TotalMissingHealth = TotalMissingHealth + Apollo.MissingHealth(v)
+	end
+	
+	return TotalMissingHealth
+	
+end
+
+function Apollo.LowHealthCount(a)
+	--if the input is between 0 and 1 the function will read it as a percentage, and check how many in the group have less than the input in percentage health.
+	--if the input is greater than 1 the function will read it as a raw value and return how many in the group have less than the input value in raw health.
+	--if the input is less than zero (a negative number) then it will check how many group members are missing more than that amount of health
+	
+	local count = 0
+	
+	if a < 0 then
+		a = a * -1
+		for i,v in ipairs(Apollo.Group.Names) do
+			if Apollo.MissingHealth(v) >= a then count = count + 1; end;
+		end
+	elseif a <= 1 then
+		for i,v in ipairs(Apollo.Group.Names) do
+			if Apollo.UnitHealthPct(v) <= a then count = count + 1; end;
+		end
+	elseif a > 1 then
+		for i,v in ipairs(Apollo.Group.Names) do
+			if UnitHealth(v) <= a then count = count + 1; end;
+		end
+	end
+		
+	return count
+end
 
 --PROVIDES AN EASY TO ACCESS FUNCTION FOR CREATING BUTTONS TO CAST SPECIFIC SPELLS
 function Apollo.CreateSkillButtons(a, b, c, d)
