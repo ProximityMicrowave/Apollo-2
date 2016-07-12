@@ -341,6 +341,7 @@ function AP.EmergencyConditions(spellTarget)
 	
 	local remainingHealth = Apollo.UnitHealth(spellTarget)
 	local affectingCombat = UnitAffectingCombat(spellTarget)
+	if (remainingHealth < (UnitHealthMax("player") * .5))
 	and (affectingCombat == true)
 	and (Apollo.Data.EmergencyCast + 3 < time())
 	then return true else return false; end;
