@@ -116,6 +116,16 @@ function Apollo.UnitHealthPct(a)
 	return healthPct
 end
 
+function Apollo.UnitHealth(a)
+
+	local health = UnitHealth(a)
+	local incomingHealth = UnitGetIncomingHeals(a) or 0
+	local health = health + incomingHealth
+	
+	return health
+
+end
+
 function Apollo.MissingHealth(a)
 
 	local health = UnitHealth(a)

@@ -20,6 +20,8 @@ function AP.Controller()
 		AP.WordOfGlory,
 		AP.ExecutionSentence,
 		AP.AvengingWrath,
+		AP.HandOfSacrifice,
+		AP.LayOnHands,
 		AP.FlashOfLight,
 		AP.HolyLight,
 	}
@@ -98,15 +100,17 @@ function AP.FlashOfLight(spellTarget, rebind)
 	local inRange = IsSpellInRange(spellName,spellTarget)
 	local healthPct = Apollo.UnitHealthPct(spellTarget)
 	local isUsable,noMana = IsUsableSpell(spellName)
+	local conditionalCooldown = GetSpellCooldown("Execution Sentence")
 	
 	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
 	
 	if (not isDead) 
 	and (inRange == 1) 
-	and (missingHealth > UnitHealthMax("player") * .5)
+	and AP.EmergencyConditions(spellTarget)
 	and (missingHealth > spellHeal)
 	and (isUsable)
 	and (not noMana)
+	and (conditionalCooldown ~= 0)
 	then spellCast = true; end;
 	
 	if spellTarget == "target" then spellCast = false; end;
@@ -165,11 +169,14 @@ function AP.WordOfGlory(spellTarget, rebind)
 	local healthPct = Apollo.UnitHealthPct(spellTarget)
 	local isUsable,noMana = IsUsableSpell(spellName)
 	local holyPower = UnitPower("player",9)
+	local buff = UnitBuff(spellTarget,"Eternal Flame")
+	local castingSpell = UnitCastingInfo("player")
 	
 	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
 	
 	if (not isDead) 
 	and (inRange == 1) 
+--	and ((not buff) or holyPower == 5)
 	and (missingHealth > spellHeal)
 	and (isUsable)
 	and (not noMana)
@@ -189,7 +196,14 @@ function AP.Cleanse(spellTarget, rebind)
 	local castTime = 2.43
 	local keybinding = 5
 	
-	local debuff = UnitDebuff(spellTarget,"Aqua Bomb")
+	local debuff = false
+	local debuffList = {"Aqua Bomb", "Shadow Word: Pain", "Corruption", "Drain Life", "Curse of Exhaustion", "Immolate", "Conflagrate", "Dancing Flames", "Withering Flames", "Salve of Toxic Fumes", "Unstable Afliction"}
+	
+	for i,v in ipairs(debuffList) do
+		debuff = UnitDebuff(spellTarget,v)
+	end
+	if debuff == "Unstable Afliction" then debuff = false; end;
+	
 	local isDead = UnitIsDeadOrGhost(spellTarget)
 	local inRange = IsSpellInRange(spellName,spellTarget)
 	local isUsable,noMana = IsUsableSpell(spellName)
@@ -219,14 +233,16 @@ function AP.ExecutionSentence(spellTarget, rebind)
 	local keybinding = 6
 	
 	local isDead = UnitIsDeadOrGhost(spellTarget)
-	local inRange = IsSpellInRange(spellName,spellTarget)
+	local inRange = IsSpellInRange("Flash of Light",spellTarget)
 	local isUsable,noMana = IsUsableSpell(spellName)
-	local cooldown = GetSpellCooldown(spellName)
+	local cooldown = select(2,GetSpellCooldown(spellName))
 	
 	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
 	
-	if (AP.FlashOfLight(spellTarget))
-	and (cooldown == 0)
+	if (not isDead)
+	and (inRange == 1)
+	and AP.EmergencyConditions(spellTarget)
+	and (cooldown ~= 60)
 	and (isUsable)
 	and (not noMana)
 	then spellCast = true; end;
@@ -250,12 +266,83 @@ function AP.AvengingWrath(spellTarget, rebind)
 	
 	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
 	
-	if (AP.FlashOfLight(spellTarget))
+	if (not isDead)
+	and AP.EmergencyConditions(spellTarget)
 	and (cooldown == 0)
 	and (isUsable)
-	and (not noMana)
 	then spellCast = true; end;
 	
 	if spellTarget == "target" then spellCast = false; end;
 	return spellCast, spellHeal, keybinding
+end
+
+function AP.HandOfSacrifice(spellTarget, rebind)
+	if spellTarget == nil or spellTarget == false then spellTarget = "focus"; end;
+	local __func__ = "Apollo.Paladin.HandOfSacrifice"
+	
+	local spellCast = false
+	local spellName = "Hand of Sacrifice"
+	local castTime = 2.43
+	local keybinding = 8
+	
+	local isDead = UnitIsDeadOrGhost(spellTarget)
+	local inRange = IsSpellInRange(spellName,spellTarget)
+	local isUsable,noMana = IsUsableSpell(spellName)
+	local cooldown = select(2,GetSpellCooldown(spellName))
+	local threat = UnitThreatSituation(spellTarget) or 0
+	
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
+	
+	if (not isDead)
+	and (inRange == 1)
+	and AP.EmergencyConditions(spellTarget)
+	and (cooldown ~= 120)
+	and (isUsable)
+	and (not noMana)
+	and (not UnitIsUnit("player",spellTarget))
+	and (threat >= 2)
+	then spellCast = true; end;
+	
+	if spellTarget == "target" then spellCast = false; end;
+	return spellCast, spellHeal, keybinding
+end
+
+function AP.LayOnHands(spellTarget, rebind)
+	if spellTarget == nil or spellTarget == false then spellTarget = "focus"; end;
+	local __func__ = "Apollo.Paladin.LayOnHands"
+	
+	local spellCast = false
+	local spellName = "Lay on Hands"
+	local castTime = 2.43
+	local keybinding = 9
+	
+	local isDead = UnitIsDeadOrGhost(spellTarget)
+	local inRange = IsSpellInRange(spellName,spellTarget)
+	local isUsable,noMana = IsUsableSpell(spellName)
+	local cooldown = select(2,GetSpellCooldown(spellName))
+	local threat = UnitThreatSituation(spellTarget) or 0
+	
+	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, spellTarget, keybinding);return; end;
+	
+	if (not isDead)
+	and (inRange == 1)
+	and AP.EmergencyConditions(spellTarget)
+	and (cooldown ~= 300)
+	and (isUsable)
+	and (threat >= 2)
+	then spellCast = true; end;
+	
+	if spellTarget == "target" then spellCast = false; end;
+	return spellCast, spellHeal, keybinding
+end
+
+function AP.EmergencyConditions(spellTarget)
+	Apollo.Data.EmergencyCast = Apollo.Data.EmergencyCast or 0
+	
+	local remainingHealth = Apollo.UnitHealth(spellTarget)
+	local affectingCombat = UnitAffectingCombat(spellTarget)
+	and (affectingCombat == true)
+	and (Apollo.Data.EmergencyCast + 3 < time())
+	then return true else return false; end;
+
 end
