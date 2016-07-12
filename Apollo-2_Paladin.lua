@@ -200,9 +200,9 @@ function AP.Cleanse(spellTarget, rebind)
 	local debuffList = {"Aqua Bomb", "Shadow Word: Pain", "Corruption", "Drain Life", "Curse of Exhaustion", "Immolate", "Conflagrate", "Dancing Flames", "Withering Flames", "Salve of Toxic Fumes", "Unstable Afliction"}
 	
 	for i,v in ipairs(debuffList) do
-		debuff = UnitDebuff(spellTarget,v)
+		if UnitDebuff(spellTarget,v) then debuff = true; break; end;
 	end
-	if debuff == "Unstable Afliction" then debuff = false; end;
+	if UnitDebuff(spellTarget,"Unstable Affliction") then debuff = false; end;
 	
 	local isDead = UnitIsDeadOrGhost(spellTarget)
 	local inRange = IsSpellInRange(spellName,spellTarget)
@@ -341,8 +341,11 @@ function AP.EmergencyConditions(spellTarget)
 	
 	local remainingHealth = Apollo.UnitHealth(spellTarget)
 	local affectingCombat = UnitAffectingCombat(spellTarget)
+	local missingHealth = Apollo.MissingHealth(spellTarget)
+	
 	if (remainingHealth < (UnitHealthMax("player") * .5))
 	and (affectingCombat == true)
+	and (missingHealth >= APSH["Flash of Light"] * 2)
 	and (Apollo.Data.EmergencyCast + 3 < time())
 	then return true else return false; end;
 
