@@ -1,4 +1,4 @@
-## Interface: 60200
+## Interface: 70000
 ## Title: Apollo-2
 ## Notes: God of Prophecy.
 ## Author: Proximity_Microwave
@@ -14,3 +14,6 @@ Display.xml
 
 Apollo-2_Priest.lua
 Apollo-2_Paladin.lua
+Apollo-2_Mage.lua
+Apollo-2_DemonHunter.lua
+Apollo-2_Warlock.lua

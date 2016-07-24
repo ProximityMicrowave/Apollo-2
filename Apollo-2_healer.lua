@@ -5,6 +5,7 @@ local AH = Apollo.Healer
 function ApolloHealer_Keybinding()
 	
 	Apollo.Group.GroupNum = GetNumGroupMembers()
+	Apollo.Group.Names = {}
 	local Offset
 	
 	if IsInRaid() == true then 

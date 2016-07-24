@@ -4,7 +4,7 @@
 	<Scripts>
 		<OnUpdate function="Apollo_OnUpdate" />
 	</Scripts>
-	<Size x="1" y="1"/>
+	<Size x="10" y="10"/>
 	<Anchors>
 		<Anchor point="TOPLEFT"/>
 	</Anchors>

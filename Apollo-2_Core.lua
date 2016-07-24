@@ -62,22 +62,26 @@ function Apollo_OnUpdate(self, elapsed)
 
 	-- EVERYTHING AFTER THIS POINT IN THE FUNCTION WILL RUN EVERY FRAME.
 	Apollo.totalMissingHealth = Apollo.TotalMissingHealth()
-	
+
 	-- THIS IF THEN STATEMENT TOGGLES THE COLOR REASIGNMENT ON OR OFF BASED ON CERTAIN CONDITIONS.
 	if 
-		ChatFrame1EditBox:IsVisible() == true --or	--ALLOWS THE PLAYER TO TYPE IN CHAT WITHOUT INTERFERENCE FROM THE CONTROL PIXEL.
+		ChatFrame1EditBoxFocusMid:IsVisible() == true --or	--ALLOWS THE PLAYER TO TYPE IN CHAT WITHOUT INTERFERENCE FROM THE CONTROL PIXEL.
 --		UnitCastingInfo("player") ~= nil or			--DISABLES THE CONTROL PIXEL IF THE PLAYER IS CASTING A SPELL.
 --		UnitChannelInfo("player") ~= nil			--DISABLES THE CONTROL PIXEL IF THE PLAYER IS CHANNELING A SPELL.
 	then
-		ColorDot:SetTexture(r,g,b,1);				--IF THE ABOVE CONDITIONS ARE MET THE CONTROL PIXEL WILL BE ASSIGNED THE DEFAULT BLACK AND THE SCRIPT WILL STOP.
+		ColorDot:SetColorTexture(r,g,b,1);				--IF THE ABOVE CONDITIONS ARE MET THE CONTROL PIXEL WILL BE ASSIGNED THE DEFAULT BLACK AND THE SCRIPT WILL STOP.
 		return; 
 	end;
-		
+	
 	--THIS AREA DETERMINES WHICH CLASS THE PLAYER IS AND RUNS THE CORESPONDING CONTROLLER RETURNING WHICH SKILL SHOULD BE USED.
 	i = 0
 	local playerClass = select(3,UnitClass("player"))
 	if playerClass == 5 then i, idealTarget = Apollo.Priest.Controller(); end;
 	if playerClass == 2 then i, idealTarget = Apollo.Paladin.Controller(); end;
+	if playerClass == 8 then i, idealTarget = Apollo.Mage.Controller(); end;
+	if playerClass == 9 then i, idealTarget = Apollo.Warlock.Controller(); end;
+	if playerClass == 12 then i, idealTarget = Apollo.DemonHunter.Controller(); end;
+
 	
 --	print(idealTarget)
 	r,g,b = i/255,i/255,i/255		--THIS CONVERTS THE CONTROLLER RETURN INTO AN RGB CODE TO BE DISPLAYED AND READ BY THE EXTERNAL AHK SCRIPT.
@@ -100,7 +104,7 @@ function Apollo_OnUpdate(self, elapsed)
 		end
 	end
 	
-	ColorDot:SetTexture(r,g,b,1);	--CHANGES THE CONTROL PIXEL TO THE CORESPONDING COLOR TO BE READ BY THE EXTERNAL AHK SCRIPT.
+	ColorDot:SetColorTexture(r,g,b,1);	--CHANGES THE CONTROL PIXEL TO THE CORESPONDING COLOR TO BE READ BY THE EXTERNAL AHK SCRIPT.
 	return;
 	
 end
@@ -111,6 +115,8 @@ function Apollo.UnitHealthPct(a)
 	local health = UnitHealth(a)
 	local healthMax = UnitHealthMax(a)
 	local incomingHealth = UnitGetIncomingHeals(a) or 0
+	if IsInRaid() then incomingHealth = 0; end;
+	
 	local healthPct = (health + incomingHealth) / healthMax
 	
 	return healthPct
@@ -120,7 +126,12 @@ function Apollo.UnitHealth(a)
 
 	local health = UnitHealth(a)
 	local incomingHealth = UnitGetIncomingHeals(a) or 0
-	local health = health + incomingHealth
+	
+	if IsInRaid() then
+		health = health
+	else
+		health = health + incomingHealth
+	end
 	
 	return health
 
@@ -131,7 +142,10 @@ function Apollo.MissingHealth(a)
 	local health = UnitHealth(a)
 	local healthMax = UnitHealthMax(a)
 	local incomingHealth = UnitGetIncomingHeals(a) or 0
+	if IsInRaid() then incomingHealth = 0; end;
+	
 	local missingHealth = healthMax - (health + incomingHealth)
+	
 	if missingHealth < 0 then missingHealth = 0; end;
 	
 	return missingHealth;
@@ -182,7 +196,7 @@ function Apollo.CreateSkillButtons(a, b, c, d)
 	if not InCombatLockdown() and Apollo.RebindKeys then
 		if _G[btnName] == nil then _G[btnName] = CreateFrame("Button", string.gsub(spellName,"%p",""), UIParent, "SecureActionButtonTemplate"); end;
 		_G[btnName]:SetAttribute("type", "macro");
-		_G[btnName]:SetAttribute("macrotext", "/use [@"..spellTarget.."] "..spellName)
+		_G[btnName]:SetAttribute("macrotext", "/use [nochanneling,@"..spellTarget.."] "..spellName)
 		
 		SetBinding(Apollo_Ability.KeyBinding[d])
 		SetBindingClick(Apollo_Ability.KeyBinding[d], string.gsub(spellName,"%p",""))
